@@ -4,14 +4,14 @@
 typedef struct  _bill
 {
 	int mode1;
-	char title[5];
+	char title[10];
 	int price;
+	int month;
+	int day;
 	int pocketbalance;
 	int bankbalance;
 	int receipt;
 } bill;
-
-char tt[]="hello";
 
 bill data[101];
 
@@ -27,6 +27,7 @@ void calculate6(int c);
 void fp(int f);
 void inp(int l,int m);
 void look(int l);
+void sum(int m,int l);
 FILE* pFile;
 rece[8]={0};
 
@@ -39,18 +40,16 @@ int main() {
 	int mode1;
 	int last = 1;
 	int confirm=0;
-	
-
-	pFile = fopen("d://money.txt", "a+");
-	
+	int mon;
 
 	while (1)
 	{
+		pFile = fopen("d://money.txt", "a+");
 		while (1)
 		{
-			printf("\n\n\n請輸入模式(記帳:1/查詢明細:2/輸入發票中獎號碼:3/退出程式:0):");
+			printf("\n\n\n請輸入模式(記帳:1/查詢明細:2/輸入發票中獎號碼:3/統計:4/退出程式:0):");
 			scanf_s("%d", &mode);
-			if (mode > 0 || mode < 3) break;
+			if (mode > 0 || mode < 5) break;
 		}
 
 		/////////////////////////////////////////////////////////////////
@@ -70,6 +69,8 @@ int main() {
 				}
 				fscanf(pFile, "%s", data[i].title);
 				fscanf(pFile, "%d", &data[i].price);
+				fscanf(pFile, "%d", &data[i].month);
+				fscanf(pFile, "%d", &data[i].day);
 				fscanf(pFile, "%d", &data[i].pocketbalance);
 				fscanf(pFile, "%d", &data[i].bankbalance);
 				fscanf(pFile, "%d", &data[i].receipt);
@@ -78,18 +79,12 @@ int main() {
 			if(last == 0)
 			{
 				data[0].mode1=0;
-				for(j=1;j<6;j++)
-				{
-					data[0].title[j] = tt[j-1];
-				}
-				
 				data[0].price=0;
 				printf("請輸入錢包起始金額:");
 				scanf("%d",&data[0].pocketbalance);
 				printf("請輸入銀行存款起始金額:");
 				scanf("%d",&data[0].bankbalance);
 				data[0].receipt=0;
-				//fp(0);
 			}
          
 
@@ -117,23 +112,22 @@ int main() {
 					confirm = 0;
 					while (confirm != 1)
 					{
-						printf("請輸入名稱:");
-						for (j = 0; j < 6; j++)
-						{
-							scanf_s("%c", &data[last + 1].title[j]);
-						}
+						printf("請輸入名稱(10字內):");
+						scanf_s("%s", &data[last + 1].title);
 						printf("請輸入金額:");
 						scanf_s("%d", &data[last + 1].price);
+						printf("請輸入月份:");
+						scanf_s("%d", &data[last + 1].month);
+						printf("請輸入日期:");
+						scanf_s("%d", &data[last + 1].day);
 						printf("請輸入發票號碼(8碼):");
 						scanf_s("%d", &data[last + 1].receipt);
 						printf("\n確認");
 						pn(mode1);
 						printf("\n名稱:");
-						for (j = 1; j < 6; j++)
-						{
-							printf("%c", data[last + 1].title[j]);
-						}	
+						printf("%-10s", data[last + 1].title);
 						printf("\n金額:%d\n", data[last + 1].price);
+						printf("日期:%d/%d\n", data[last + 1].month ,data[last + 1].day);
 						printf("發票號碼:%d\n", data[last + 1].receipt);
 						printf("\n確認請按1，重新輸入請按0:");
 						scanf("%d", &confirm);
@@ -229,15 +223,22 @@ int main() {
            		}
            		look(last);
 				break;
+				
+			case 4:
+				printf("\n統計:\n\n");
+				printf("請輸入月份:");
+				scanf_s("%d",&mon);
+				sum(mon,last);
+				break;
+				 
 			}
-
+			fclose(pFile);
 		}
-		fclose(pFile);
 	}
 }
 void pname()
 {
-	printf("種類\t\t名稱\t金額\t錢包餘額\t帳戶餘額\t發票號碼\n");
+	printf("種類\t\t名稱\t\t金額\t月份\t日期\t錢包餘額\t帳戶餘額\t發票號碼\n");
 }
 
 void inp(int l,int m)
@@ -246,21 +247,20 @@ void inp(int l,int m)
 	int confirm = 0;
 	while (confirm != 1)
 	{
-		printf("請輸入名稱:");
-		for (j = 0; j < 6; j++)
-		{
-			scanf_s("%c", &data[l + 1].title[j]);
-		}
+		printf("請輸入名稱(10字內):");
+		scanf_s("%s", &data[l + 1].title);
 		printf("請輸入金額:");
 		scanf_s("%d", &data[l + 1].price);
+		printf("請輸入月份:");
+		scanf_s("%d", &data[l + 1].month);
+		printf("請輸入日期:");
+		scanf_s("%d", &data[l + 1].day);
 		printf("\n確認");
 		pn(m);
 		printf("\n名稱:");
-		for (j = 1; j < 6; j++)
-		{
-			printf("%c", data[l + 1].title[j]);
-		}
+		printf("%-10s", data[l + 1].title);
 		printf("\n金額:%d\n", data[l + 1].price);
+		printf("日期:%d/%d\n", data[l + 1].month ,data[l + 1].day);
 		printf("\n確認請按1，重新輸入請按0:");
 		scanf("%d", &confirm);
 	}
@@ -299,12 +299,11 @@ void print(int p)
 {
 	int r;
 	pn(data[p].mode1);
-	for (r = 1; r < 6; r++)
-	{
-	printf("%c", data[p].title[r]);
-	}
+	printf("%-10s", data[p].title);
 	printf("\t");
 	printf("%d\t", data[p].price);
+	printf("%d\t", data[p].month);
+	printf("%d\t", data[p].day);
 	printf("%d\t\t", data[p].pocketbalance);
 	printf("%d\t\t", data[p].bankbalance);
 	printf("%d\n", data[p].receipt);
@@ -344,7 +343,7 @@ void calculate4(int c)
 void calculate5(int c)
 {
 	data[c + 1].receipt=0;
-	data[c + 1].mode1 = 4;
+	data[c + 1].mode1 = 5;
 	data[c + 1].pocketbalance = data[c].pocketbalance;
 	data[c + 1].bankbalance = data[c].bankbalance + data[c+1].price;
 }
@@ -361,15 +360,43 @@ void fp(int f)
 {
 	int r;
 	fprintf(pFile, "%d ", data[f].mode1);
-	for (r = 1; r < 6; r++)
-	{
-		fprintf(pFile, "%c", data[f].title[r]);
-	}
+	fprintf(pFile, "%-10s", data[f].title);
 	fprintf(pFile, " ");
 	fprintf(pFile, "%d ", data[f].price);
+	fprintf(pFile, "%d ", data[f].month);
+	fprintf(pFile, "%d ", data[f].day);
 	fprintf(pFile, "%d ", data[f].pocketbalance);
 	fprintf(pFile, "%d ", data[f].bankbalance);
 	fprintf(pFile, "%d\n", data[f].receipt);
+}
+
+void sum(int m,int l)
+{
+	int total1=0;
+	int total2=0;
+	int i,j;
+	int a=0;
+	for(j=1;j<=l;j++)
+	{
+		if(data[j].month==m && (data[j].mode1==1 || data[j].mode1==6))
+		{
+			total1+=data[j].price;
+			a++;
+		} 
+	}
+	printf("\n%d月總共花了:%d元\n",m,total1);
+	printf("平均一天花了:%d元\n\n",total1/30);
+	
+	for(j=1;j<=l;j++)
+	{
+		if(data[j].month==m && (data[j].mode1==2 || data[j].mode1==5))
+		{
+			total2+=data[j].price;
+			a++;
+		} 
+	}
+	printf("%d月收入:%d元\n",m,total2);
+	
 }
 
 void look(int l)
@@ -379,56 +406,55 @@ void look(int l)
 	{
 		if(data[i].receipt==rece[0])
 		{
-			printf("恭喜您中1000萬!!\n");
-			printf("發票號碼:%d",data[0].receipt);
+			printf("恭喜您中1000萬!! ");
+			printf("發票號碼:%d\n",data[i].receipt);
 		}
 		if(data[i].receipt==rece[1])
 		{
-			printf("恭喜您中200萬!!\n");
-			printf("發票號碼:%d",data[1].receipt);
+			printf("恭喜您中200萬!! ");
+			printf("發票號碼:%d\n",data[i].receipt);
 		}
 		for(j=2;j<=4;j++)
 		{
-			if(data[i].receipt==rece[2])
+			if(data[i].receipt==rece[j])
 			{
-				printf("恭喜您中20萬!!\n");
-				printf("發票號碼:%d",data[i].receipt);
+				printf("恭喜您中20萬!! ");
+				printf("發票號碼:%d\n",data[i].receipt);
 			}
-			if(data[i].receipt%10000000==rece[j]%10000000)
+			else if(data[i].receipt%10000000==rece[j]%10000000)
 			{
-				printf("恭喜您中4萬!!\n");
-				printf("發票號碼:%d",data[i].receipt);
+				printf("恭喜您中4萬!! ");
+				printf("發票號碼:%d\n",data[i].receipt);
 			}
-			if(data[i].receipt%1000000==rece[j]%1000000)
+			else if(data[i].receipt%1000000==rece[j]%1000000)
 			{
-				printf("恭喜您中1萬!!\n");
-				printf("發票號碼:%d",data[i].receipt);
+				printf("恭喜您中1萬!! ");
+				printf("發票號碼:%d\n",data[i].receipt);
 			}
-			if(data[i].receipt%100000==rece[j]%100000)
+			else if(data[i].receipt%100000==rece[j]%100000)
 				{
-				printf("恭喜您中4千!!\n");
-				printf("發票號碼:%d",data[i].receipt);
+				printf("恭喜您中4千!! ");
+				printf("發票號碼:%d\n",data[i].receipt);
 			}
-			if(data[i].receipt%10000==rece[j]%10000)
+			else if(data[i].receipt%10000==rece[j]%10000)
 			{
-				printf("恭喜您中1千!!\n");
-				printf("發票號碼:%d",data[i].receipt);
+				printf("恭喜您中1千!! ");
+				printf("發票號碼:%d\n",data[i].receipt);
 			}
-			if(data[i].receipt%1000==rece[j]%1000)
+			else if(data[i].receipt%1000==rece[j]%1000)
 			{
-				printf("恭喜您中2百!!\n");
-				printf("發票號碼:%d",data[i].receipt);
+				printf("恭喜您中2百!! ");
+				printf("發票號碼:%d\n",data[i].receipt);
 			}
 		}
 		for(j=5;j<=7;j++)
 		{
 			if(data[i].receipt%1000==rece[j])
 			{
-				printf("恭喜您中2百!!\n");
-				printf("發票號碼:%d",data[i].receipt);
+				printf("恭喜您中2百!! ");
+				printf("發票號碼:%d\n",data[i].receipt);
 			}
 		}
 	}
 }
-
 
